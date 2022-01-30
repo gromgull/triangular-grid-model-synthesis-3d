@@ -1,5 +1,7 @@
 # Model Synthesizer with 3d triangular grid
 
+[Demo!](https://gromgull.github.io/triangular-grid-model-synthesis-3d/)
+
 ![sample image](img/sample.png)
 
 ![tiles](img/tiles.png)
