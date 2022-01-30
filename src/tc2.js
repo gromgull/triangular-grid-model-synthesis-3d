@@ -11,9 +11,7 @@ const n = 8;
 const tiles = [...Array(8).keys()];
 
 const tile_map = [0,1,2,2,2,3,3,3];
-const rotation_map = [0,0,0,1,2,0,1,2];
-
-
+const rotation_map = [-1,-1,0,1,2,0,1,2];
 
 const corners = [
   [0,0,0],

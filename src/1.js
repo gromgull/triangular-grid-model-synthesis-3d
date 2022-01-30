@@ -10,8 +10,24 @@ export default function Model({ ...props }) {
   const { nodes, materials } = useGLTF('/assets/1.glb')
   return (
     <group ref={group} {...props} dispose={null}>
-      <mesh geometry={nodes.top001.geometry} material={materials['Material.003']} />
-      <mesh geometry={nodes.ground001.geometry} material={materials['Material.001']} position={[0, 0.01, 0]} />
+      <mesh geometry={nodes.top001.geometry} material={materials.top} />
+      <mesh geometry={nodes.ground001.geometry} material={materials.ground} position={[0, 0.01, 0]} />
+      <group position={[0.01, 0.39, -0.33]} rotation={[-0.01, 0.01, 0.02]} scale={0.03}>
+        <mesh geometry={nodes.Cylinder012.geometry} material={nodes.Cylinder012.material} />
+        <mesh geometry={nodes.Cylinder012_1.geometry} material={nodes.Cylinder012_1.material} />
+      </group>
+      <group position={[-0.23, 0.4, -0.4]} rotation={[0.02, -0.04, -0.07]} scale={0.03}>
+        <mesh geometry={nodes.Cylinder016.geometry} material={nodes.Cylinder016.material} />
+        <mesh geometry={nodes.Cylinder016_1.geometry} material={nodes.Cylinder016_1.material} />
+      </group>
+      <group position={[-0.05, 0.37, -0.52]} rotation={[-0.01, 0.01, 0.03]} scale={0.02}>
+        <mesh geometry={nodes.Cylinder020.geometry} material={nodes.Cylinder020.material} />
+        <mesh geometry={nodes.Cylinder020_1.geometry} material={nodes.Cylinder020_1.material} />
+      </group>
+      <group position={[0.23, 0.34, -0.81]} rotation={[0, 0.01, 0.01]} scale={0.02}>
+        <mesh geometry={nodes.Cylinder023.geometry} material={nodes.Cylinder023.material} />
+        <mesh geometry={nodes.Cylinder023_1.geometry} material={nodes.Cylinder023_1.material} />
+      </group>
     </group>
   )
 }

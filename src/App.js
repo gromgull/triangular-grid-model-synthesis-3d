@@ -29,6 +29,7 @@ const Tile = props => {
 	TileModel = EmptyTile;
   } else {
 	r = tc2.rotation_map[props.t];
+	if (r==-1) r = (props.pos[0]+17*props.pos[1]+23*props.pos[2])%3;
 	TileModel = tc2.tile_models[tc2.tile_map[props.t]];
   }
 
