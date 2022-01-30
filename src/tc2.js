@@ -1,3 +1,12 @@
+/*
+
+  This defines the tiles available and the constraints between them
+
+  The model-synthesis code doesn't really about the grid or anything else,
+  you can replace this file and have a square grid, or true 3d,
+  or anything you want.
+
+*/
 
 import { default as Tile0 } from './0.js';
 import { default as Tile1 } from './1.js';

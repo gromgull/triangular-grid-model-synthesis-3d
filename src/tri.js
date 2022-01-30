@@ -1,3 +1,6 @@
+// a "port" of Boris The Brave's triangle library:
+// https://github.com/BorisTheBrave/grids/blob/main/src/test_updown_tri.py
+
 const sqrt3 = Math.sqrt(3);
 
 class Tri {

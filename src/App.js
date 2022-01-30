@@ -160,7 +160,7 @@ function App() {
 
 	// the triangle coordinate system makes it hard to define a rectangle,
 	// so we start with a tile and just move out n steps.
-	const n = 7;
+	const n = 9;
 	let nxt = [ [ 0,0,1 ]];
 	for (let i = 0; i<n; i++) {
 	  nxt = nxt.flatMap( t => {
