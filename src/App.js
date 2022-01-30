@@ -63,11 +63,6 @@ const Grid = props => {
   const [ vals, setVals ] = useState( { } );
   const [ dirty, setDirty ] = useState( [] );
 
-  function neighbours(c) {
-	return tri.neighbours(...props.cells[c])
-	  .map( n => n.toString() )
-	  .filter( n => props.cells[n] !== undefined);
-  }
 
   function propegate(dirty) {
 	const new_options = {...options};
@@ -80,25 +75,27 @@ const Grid = props => {
 	  const c = dirty.pop();
 	  const pre_length = new_options[c].length;
 	  const pre = [ ... new_options[c]];
+	  const neighbours = tri.neighbours(...props.cells[c])
+			.map( n => n.toString() );
 
-	  neighbours(c).forEach( (n,i) => {
+	  neighbours.forEach( (n,i) => {
+
+	    if (props.cells[n] === undefined) return; // outside grid
+
 		new_options[c] = new_options[c].filter( o => intersection(tc2.constraints[o][i], new_options[n]).length);
 		if (new_options[c].length === 0) {
-		  console.log(pre.map(o => {
-			return intersection(tc2.constraints[o][i], new_options[n]).length;
-		  }));
+		  // no solutions - this should never happen
 		  console.log('oh no', c, n, i, pre);
-		  return;
 		}
 	  });
 
 	  if (new_options[c].length !== pre_length) {
 		console.log(`reduce ${c} from ${pre_length} to ${new_options[c].length}`);
-		dirty.push(...neighbours(c));
+		dirty.push(...neighbours.filter(n => props.cells[n] !== undefined));
 		changed = true;
 
 		if (new_options[c].length === 1) {
-		  console.log(c,'collapsed to', new_options[c][0]);
+		  console.log(`${c} collapsed to ${new_options[c][0]}`);
 		  new_vals[c] = new_options[c][0];
 		  setVals(new_vals);
 		}
@@ -123,15 +120,17 @@ const Grid = props => {
 
 	const val = options[min_cell][Math.floor(Math.random()*options[min_cell].length)];
 
-	console.log("Setting", min_cell, "to", val, "(had",len,"options)");
+	console.log(`Setting ${min_cell} to ${val} (had ${len} options)`);
 
 	setOptions( { ...options, [min_cell]: [val] } );
 	setVals( { ...vals, [min_cell]: val });
-	setDirty( neighbours(min_cell) );
+	setDirty( tri.neighbours(...props.cells[min_cell])
+			  .map( n => n.toString() )
+			  .filter( n => props.cells[n] !== undefined) );
 
   }
 
-  useEffect(() => pick_one(), [props.iteration]);
+  useEffect(() => props.iteration && pick_one(), [props.iteration]);
 
   useEffect( () => {
 	if (options === undefined) return;
@@ -142,10 +141,6 @@ const Grid = props => {
 	<>
 	  { props.cells ? Object.keys(props.cells).map( c =>
 		<Tile key={c} t={vals[c]} pos={props.cells[c]} /> ) : [] }
-
-{/*	  <Tile pos={[0,0,1]} t="3" r="0"/>
-	  <Tile pos={[0,1,1]} t="2" r="2"/> */}
-
 	</>
   )
 };
@@ -160,8 +155,9 @@ function App() {
 
 	// the triangle coordinate system makes it hard to define a rectangle,
 	// so we start with a tile and just move out n steps.
+	const n = 7;
 	let nxt = [ [ 0,0,1 ]];
-	for (let i = 0; i<3; i++) {
+	for (let i = 0; i<n; i++) {
 	  nxt = nxt.flatMap( t => {
 		cells[t] = t;
 		return tri.neighbours(...t);
