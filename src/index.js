@@ -5,6 +5,7 @@ import App from './App';
 
 ReactDOM.render(
   <React.StrictMode>
+	<h1>Click or press/hold space! (and move camera with mouse)</h1>
     <App />
   </React.StrictMode>,
   document.getElementById('root')

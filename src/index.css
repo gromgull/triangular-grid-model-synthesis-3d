@@ -11,3 +11,20 @@ code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;
 }
+
+h1 {
+  font-weight: normal;
+  text-align: center;
+  font-size: small;
+}
+
+.github {
+  position: absolute;
+  right: 0;
+  top: 0;
+  z-index: 3;
+}
+
+#root {
+  user-select: none;
+}

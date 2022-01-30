@@ -49,4 +49,5 @@ const constraints = tiles.map( t => {
   ];
 });
 
-export default { constraints, corners, rotation_map, tile_map, tiles, n, tile_models };
+const tc2 = { constraints, corners, rotation_map, tile_map, tiles, n, tile_models };
+export default tc2;

@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useMemo, Suspense } from 'react'
 
-import { Canvas, useFrame } from '@react-three/fiber'
+import { Canvas } from '@react-three/fiber'
 import { Environment, OrbitControls } from "@react-three/drei";
 
 import './App.css';
@@ -74,7 +74,7 @@ const Grid = props => {
 	  i += 1;
 	  const c = dirty.pop();
 	  const pre_length = new_options[c].length;
-	  const pre = [ ... new_options[c]];
+	  const pre = [ ...new_options[c]];
 	  const neighbours = tri.neighbours(...props.cells[c])
 			.map( n => n.toString() );
 
@@ -82,9 +82,12 @@ const Grid = props => {
 
 	    if (props.cells[n] === undefined) return; // outside grid
 
+		// check that all of our options are still compatible with this neighbours current options
 		new_options[c] = new_options[c].filter( o => intersection(tc2.constraints[o][i], new_options[n]).length);
+
 		if (new_options[c].length === 0) {
-		  // no solutions - this should never happen
+		  // no solutions - if you tileset is complete/simple this should never happen
+		  // there is where we would backtrack
 		  console.log('oh no', c, n, i, pre);
 		}
 	  });
@@ -110,14 +113,15 @@ const Grid = props => {
 
 	// pick cell with least options ("least entropy")
 
-	const [ min_cell, len ] = Object.keys(options).map( c => [ c, options[c].length ] ).
-	  reduce( (min, e) => vals[e[0]] === undefined && e[1] < min[1] ? e : min, [undefined, 1000000]);
+	const [ min_cell, len ] = Object.keys(options).map( c => [ c, options[c].length ] )
+	  .reduce( (min, e) => vals[e[0]] === undefined && e[1] < min[1] ? e : min, [undefined, 1000000]);
 
 	if (min_cell === undefined) {
 	  console.log('all done!');
 	  return;
 	}
 
+	// pick a random option
 	const val = options[min_cell][Math.floor(Math.random()*options[min_cell].length)];
 
 	console.log(`Setting ${min_cell} to ${val} (had ${len} options)`);
@@ -130,7 +134,7 @@ const Grid = props => {
 
   }
 
-  useEffect(() => props.iteration && pick_one(), [props.iteration]);
+  useEffect(() => props.iteration && pick_one(), [props.iteration]); // TODO: turn back time :sweaty_grin:
 
   useEffect( () => {
 	if (options === undefined) return;
@@ -151,7 +155,7 @@ function App() {
 
   const cells = useMemo( () => {
 
-	const cells = {};
+	let cells = {};
 
 	// the triangle coordinate system makes it hard to define a rectangle,
 	// so we start with a tile and just move out n steps.
@@ -163,24 +167,33 @@ function App() {
 		return tri.neighbours(...t);
 	  });
 	}
+
+	// for looks - filter out cells with only one neighbour
+	cells = Object.fromEntries( Object.keys(cells).flatMap( c => tri.neighbours(...cells[c]).filter( n => cells[n] !== undefined ).length > 1?[[ c, cells[c]]]:[] ));
+
 	console.log(`Grid is ${Object.keys(cells).length} tiles`);
 
 	return cells;
   }, []);
 
   useEffect(() => {
-    const handleWindowKeydown = (e) => e.keyCode == 32 && setIteration(iteration+1);
+    const handleWindowKeydown = e => e.keyCode === 32 && setIteration(iteration+1);
+	const handleClick = e => { setIteration(iteration+1); };
+	window.addEventListener('click', handleClick);
 
     window.addEventListener('keydown', handleWindowKeydown);
 
-    return () => window.removeEventListener('keydown', handleWindowKeydown);
+    return () => {
+	  window.removeEventListener('keydown', handleWindowKeydown);
+	  window.removeEventListener('click', handleClick);
+	};
   }, [iteration, setIteration]);
 
 
-  return <Canvas>
+  return <Canvas camera={{ fov: 45, position: [5, 5, 5] }}>
 		   <Suspense fallback={null}>
 			 <OrbitControls />
-			 <axesHelper />
+			 { /* <axesHelper /> */ }
 			 <Environment preset="sunset" />
 			 <Grid iteration={iteration} cells={cells} />
 		   </Suspense>
