@@ -57,24 +57,39 @@ const Tile = props => {
 
 const Grid = props => {
 
-  const [ options, setOptions ] = useState(() =>
-	Object.fromEntries( Object.keys(props.cells).map( c => [c, [...tc2.tiles]]) )
-  );
+  const [ options, setOptions ] = useState({});
 
-  const [ vals, setVals ] = useState( { } );
+  const [ cells, setCells ] = useState();
+
   const [ dirty, setDirty ] = useState( [] );
+  const [ iteration, setIteration ] = useState(0);
 
+  if (props.cells !== cells) {
+	setCells(props.cells);
+	setOptions(Object.fromEntries( Object.keys(props.cells).map( c => [c, [...tc2.tiles]]) ));
+	setDirty([]);
+  }
 
-  function propegate(dirty) {
+  useEffect( () => {
+
+	// propegate changes
+
+	if (options === undefined) return;
+	if (!dirty.length) return;
+
+	const todo = [...dirty];
+
 	const new_options = {...options};
-	const new_vals = {...vals};
 	let i = 0;
 	let changed = false;
 
-	while (dirty.length) {
+	while (todo.length) {
 	  i += 1;
-	  const c = dirty.pop();
+	  const c = todo.pop();
 	  const pre_length = new_options[c].length;
+
+	  if (pre_length === 1) continue;
+
 	  const pre = [ ...new_options[c]];
 	  const neighbours = tri.neighbours(...props.cells[c])
 			.map( n => n.toString() );
@@ -95,27 +110,35 @@ const Grid = props => {
 
 	  if (new_options[c].length !== pre_length) {
 		console.log(`reduce ${c} from ${pre_length} to ${new_options[c].length}`);
-		dirty.push(...neighbours.filter(n => props.cells[n] !== undefined));
+		todo.push(...neighbours.filter(n => props.cells[n] !== undefined));
 		changed = true;
 
 		if (new_options[c].length === 1) {
 		  console.log(`${c} collapsed to ${new_options[c][0]}`);
-		  new_vals[c] = new_options[c][0];
-		  setVals(new_vals);
 		}
 
 	  }
 	}
 	console.log(`propegate visited ${i} cells`);
 	if (changed) setOptions(new_options);
-  }
 
-  function pick_one() {
+	setDirty([]);
+
+  }, [ dirty, options, props.cells ]);
+
+
+  useEffect(() => {
+	// pick one
+
+	// TODO: turn back time :sweaty_grin:
+	if (iteration === props.iteration) return; // already processed this one
+
+	if (dirty.length) return; // process these first
 
 	// pick cell with least options ("least entropy")
 
 	const [ min_cell, len ] = Object.keys(options).map( c => [ c, options[c].length ] )
-	  .reduce( (min, e) => vals[e[0]] === undefined && e[1] < min[1] ? e : min, [undefined, 1000000]);
+	  .reduce( (min, e) => options[e[0]].length>1 && e[1] < min[1] ? e : min, [undefined, 1000000]);
 
 	if (min_cell === undefined) {
 	  console.log('all done!');
@@ -128,24 +151,19 @@ const Grid = props => {
 	console.log(`Setting ${min_cell} to ${val} (had ${len} options)`);
 
 	setOptions( { ...options, [min_cell]: [val] } );
-	setVals( { ...vals, [min_cell]: val });
 	setDirty( tri.neighbours(...props.cells[min_cell])
 			  .map( n => n.toString() )
 			  .filter( n => props.cells[n] !== undefined) );
 
-  }
+	setIteration(props.iteration);
 
-  useEffect(() => props.iteration && pick_one(), [props.iteration]); // TODO: turn back time :sweaty_grin:
+  }, [props.cells, iteration, props.iteration, dirty.length, options]);
 
-  useEffect( () => {
-	if (options === undefined) return;
-	propegate(dirty);
-  }, [ dirty ]);
 
   return (
 	<>
-	  { props.cells ? Object.keys(props.cells).map( c =>
-		<Tile key={c} t={vals[c]} pos={props.cells[c]} /> ) : [] }
+	  { Object.keys(options).map( c =>
+		<Tile key={c} t={options[c].length===1 ? options[c][0] : undefined} pos={props.cells[c]} /> ) }
 	</>
   )
 };
@@ -154,7 +172,7 @@ function App() {
 
   const [ iteration, setIteration ] = useState(0);
 
-  const cells = useMemo( () => {
+  const [ cells, setCells ] = useState( () => {
 
 	let cells = {};
 
@@ -175,10 +193,13 @@ function App() {
 	console.log(`Grid is ${Object.keys(cells).length} tiles`);
 
 	return cells;
-  }, []);
+  });
 
   useEffect(() => {
-    const handleWindowKeydown = e => e.keyCode === 32 && setIteration(iteration+1);
+    const handleWindowKeydown = e => {
+	  if (e.keyCode === 32) setIteration(iteration+1);
+	  if (e.keyCode === 82) setCells({...cells});
+	};
 	const handleClick = e => { setIteration(iteration+1); };
 	window.addEventListener('click', handleClick);
 

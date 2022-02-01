@@ -9,8 +9,9 @@ class Tri {
 
   static center(a, b, c) {
     // Returns the center of a given triangle in cartesian co-ordinates
-    return [[       0.5 * a +                      -0.5 * c],
-            [-sqrt3 / 6 * a + sqrt3 / 3 * b - sqrt3 / 6 * c] ];
+	// 0,0,1 is centered at 0,0
+    return [ 0.5 +       0.5 * a +                      -0.5 * c,
+            sqrt3/6 +     -sqrt3 / 6 * a + sqrt3 / 3 * b - sqrt3 / 6 * c ];
   }
 
 
