@@ -7,12 +7,12 @@ import { useGLTF } from '@react-three/drei'
 
 export default function Model({ ...props }) {
   const group = useRef()
-  const { nodes, materials } = useGLTF('./assets/empty.glb')
+  const { nodes, materials } = useGLTF('assets/empty.glb')
   return (
     <group ref={group} {...props} dispose={null}>
-      <mesh geometry={nodes.emptyground.geometry} material={materials['Material.004']} position={[0, 0.01, 0]} />
+      <mesh geometry={nodes.emptyground.geometry} material={materials.empty} position={[0, 0.01, 0]} />
     </group>
   )
 }
 
-useGLTF.preload('./assets/empty.glb')
+useGLTF.preload('assets/empty.glb')
