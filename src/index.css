@@ -16,6 +16,8 @@ h1 {
   font-weight: normal;
   text-align: center;
   font-size: small;
+  width: 100%;
+  position: absolute;
 }
 
 .github {

@@ -6,9 +6,10 @@ import { Environment, OrbitControls } from "@react-three/drei";
 import './App.css';
 
 import tri from './tri.js';
-import tc2 from './tc2.js';
+import tv2 from './tv2.js';
+import tv3 from './tv3.js';
 
-import EmptyTile from './Empty';
+import EmptyTile from './models/Empty';
 
 const d60 = 2*Math.PI/6;
 const th = Math.sqrt(3)/6;
@@ -28,9 +29,9 @@ const Tile = props => {
 	r = 0;
 	TileModel = EmptyTile;
   } else {
-	r = tc2.rotation_map[props.t];
+	r = props.rules.rotation_map[props.t];
 	if (r==-1) r = (props.pos[0]+17*props.pos[1]+23*props.pos[2])%3;
-	TileModel = tc2.tile_models[tc2.tile_map[props.t]];
+	TileModel = props.rules.tile_models[props.rules.tile_map[props.t]];
   }
 
   const [cx,cy] = tri.center(...props.pos);
@@ -65,8 +66,9 @@ const Grid = props => {
   const [ iteration, setIteration ] = useState(0);
 
   if (props.cells !== cells) {
+	// reset
 	setCells(props.cells);
-	setOptions(Object.fromEntries( Object.keys(props.cells).map( c => [c, [...tc2.tiles]]) ));
+	setOptions(Object.fromEntries( Object.keys(props.cells).map( c => [c, [...props.rules.tiles]]) ));
 	setDirty([]);
   }
 
@@ -99,7 +101,7 @@ const Grid = props => {
 	    if (props.cells[n] === undefined) return; // outside grid
 
 		// check that all of our options are still compatible with this neighbours current options
-		new_options[c] = new_options[c].filter( o => intersection(tc2.constraints[o][i], new_options[n]).length);
+		new_options[c] = new_options[c].filter( o => intersection(props.rules.constraints[o][i], new_options[n]).length);
 
 		if (new_options[c].length === 0) {
 		  // no solutions - if you tileset is complete/simple this should never happen
@@ -163,7 +165,7 @@ const Grid = props => {
   return (
 	<>
 	  { Object.keys(options).map( c =>
-		<Tile key={c} t={options[c].length===1 ? options[c][0] : undefined} pos={props.cells[c]} /> ) }
+		<Tile key={c} rules={props.rules} t={options[c].length===1 ? options[c][0] : undefined} pos={props.cells[c]} /> ) }
 	</>
   )
 };
@@ -171,6 +173,7 @@ const Grid = props => {
 function App() {
 
   const [ iteration, setIteration ] = useState(0);
+  const [ autoRotate, setAutoRotate ] = useState(false);
 
   const [ cells, setCells ] = useState( () => {
 
@@ -199,6 +202,7 @@ function App() {
     const handleWindowKeydown = e => {
 	  if (e.keyCode === 32) setIteration(iteration+1);
 	  if (e.keyCode === 82) setCells({...cells});
+	  if (e.keyCode === 65) setAutoRotate(!autoRotate);
 	};
 	const handleClick = e => { setIteration(iteration+1); };
 	window.addEventListener('click', handleClick);
@@ -214,10 +218,10 @@ function App() {
 
   return <Canvas camera={{ fov: 45, position: [5, 5, 5] }}>
 		   <Suspense fallback={null}>
-			 <OrbitControls />
+			 <OrbitControls autoRotate={autoRotate}/>
 			 { /* <axesHelper /> */ }
 			 <Environment preset="sunset" />
-			 <Grid iteration={iteration} cells={cells} />
+			 <Grid rules={tv3} iteration={iteration} cells={cells} />
 		   </Suspense>
 		 </Canvas>;
 }
