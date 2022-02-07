@@ -1,7 +1,7 @@
-import React, { useEffect, useState, useMemo, Suspense } from 'react'
+import React, { useEffect, useState, Suspense } from 'react'
 
 import { Canvas } from '@react-three/fiber'
-import { Environment, OrbitControls } from "@react-three/drei";
+import { Sky, Environment, OrbitControls } from "@react-three/drei";
 
 import './App.css';
 
@@ -10,9 +10,16 @@ import tv2 from './tv2.js';
 import tv3 from './tv3.js';
 
 import EmptyTile from './models/Empty';
+import Effects from './Effects';
 
 const d60 = 2*Math.PI/6;
 const th = Math.sqrt(3)/6;
+
+const verbose = false;
+
+function log(msg) {
+  if (verbose) console.log(msg);
+}
 
 function intersection(a,b) {
   // TODO: a and b are sorted, we can do better.
@@ -38,16 +45,18 @@ const Tile = props => {
 
   const up = tri.points_up(...props.pos);
 
+  const scale = 1;
+
   // Innermost position puts pivot at triangle center
   // then rotation to give us right orientation of triangle (3 options), r=0,1,2
   // then rotation for up or down triangles
   // finally position
   return (
     <>
-	  <group position={[cx,0,cy]}>
+	  <group position={[scale*cx,0,scale*cy]}>
 		<object3D rotation={[0,up ? 0 : 3*d60,0]} >
 		  <object3D rotation={[0,r*2*d60,0]}>
-			<TileModel position={[0,0,2*th]}  />
+			<TileModel scale={scale} position={[0,0,scale*2*th]}  />
 		  </object3D>
 		</object3D>
 	  </group>
@@ -111,17 +120,17 @@ const Grid = props => {
 	  });
 
 	  if (new_options[c].length !== pre_length) {
-		console.log(`reduce ${c} from ${pre_length} to ${new_options[c].length}`);
+		log(`reduce ${c} from ${pre_length} to ${new_options[c].length}`);
 		todo.push(...neighbours.filter(n => props.cells[n] !== undefined));
 		changed = true;
 
 		if (new_options[c].length === 1) {
-		  console.log(`${c} collapsed to ${new_options[c][0]}`);
+		  log(`${c} collapsed to ${new_options[c][0]}`);
 		}
 
 	  }
 	}
-	console.log(`propegate visited ${i} cells`);
+	log(`propegate visited ${i} cells`);
 	if (changed) setOptions(new_options);
 
 	setDirty([]);
@@ -143,14 +152,14 @@ const Grid = props => {
 	  .reduce( (min, e) => options[e[0]].length>1 && e[1] < min[1] ? e : min, [undefined, 1000000]);
 
 	if (min_cell === undefined) {
-	  console.log('all done!');
+	  log('all done!');
 	  return;
 	}
 
 	// pick a random option
 	const val = options[min_cell][Math.floor(Math.random()*options[min_cell].length)];
 
-	console.log(`Setting ${min_cell} to ${val} (had ${len} options)`);
+	log(`Setting ${min_cell} to ${val} (had ${len} options)`);
 
 	setOptions( { ...options, [min_cell]: [val] } );
 	setDirty( tri.neighbours(...props.cells[min_cell])
@@ -181,7 +190,7 @@ function App() {
 
 	// the triangle coordinate system makes it hard to define a rectangle,
 	// so we start with a tile and just move out n steps.
-	const n = 9;
+	const n = 8;
 	let nxt = [ [ 0,0,1 ]];
 	for (let i = 0; i<n; i++) {
 	  nxt = nxt.flatMap( t => {
@@ -193,7 +202,7 @@ function App() {
 	// for looks - filter out cells with only one neighbour
 	cells = Object.fromEntries( Object.keys(cells).flatMap( c => tri.neighbours(...cells[c]).filter( n => cells[n] !== undefined ).length > 1?[[ c, cells[c]]]:[] ));
 
-	console.log(`Grid is ${Object.keys(cells).length} tiles`);
+	log(`Grid is ${Object.keys(cells).length} tiles`);
 
 	return cells;
   });
@@ -215,12 +224,17 @@ function App() {
 	};
   }, [iteration, autoRotate, cells]);
 
-
-  return <Canvas frameloop="demand" camera={{ fov: 45, position: [5, 5, 5] }}>
+  return <Canvas camera={{ fov: 45, position: [5, 5, 5] }}>
 		   <Suspense fallback={null}>
 			 <OrbitControls autoRotate={autoRotate}/>
+			 <directionalLight args={[0xffffff, 1.0]} castShadow position={[1,.6,0]}/>
+			 <ambientLight args={[2]}/>
 			 { /* <axesHelper /> */ }
+
 			 <Environment preset="sunset" />
+
+			 <Sky distance={450000} sunPosition={[1, .6, 0]} inclination={0} azimuth={0.25}  />
+
 			 <Grid rules={tv3} iteration={iteration} cells={cells} />
 		   </Suspense>
 		 </Canvas>;
