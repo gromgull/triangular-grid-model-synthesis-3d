@@ -9,9 +9,9 @@ import tri from './tri.js';
 import tv2 from './tv2.js';
 import tv3 from './tv3.js';
 
-import Effects from './Effects';
-
 import TileModel from './Tile';
+
+import Clouds from './Clouds';
 
 const d60 = 2*Math.PI/6;
 const th = Math.sqrt(3)/6;
@@ -227,14 +227,13 @@ function App() {
   return <Canvas camera={{ fov: 45, position: [5, 5, 5] }}>
 		   <Suspense fallback={null}>
 			 <OrbitControls autoRotate={autoRotate}/>
-			 <directionalLight args={[0xffffff, 1.0]} castShadow position={[1,.6,0]}/>
+			 <directionalLight args={[0xffeedd, 1.0]} castShadow position={[1,.6,0]}/>
 			 <ambientLight args={[2]}/>
 			 { /* <axesHelper /> */ }
-
 			 <Environment preset="sunset" />
-
-			 <Sky distance={450000} sunPosition={[1, .6, 0]} inclination={0} azimuth={0.25}  />
-
+			 <fog color="white" far={30} near={0.01} attach="fog" />
+			 <Sky distance={450000} sunPosition={[1, .02, 0]} inclination={.1} azimuth={0.25}  />
+			 <Clouds position={[0,2.5,0]}/>
 			 <Grid rules={tv3} iteration={iteration} cells={cells} />
 		   </Suspense>
 		 </Canvas>;

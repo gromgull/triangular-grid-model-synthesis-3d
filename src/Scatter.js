@@ -7,7 +7,6 @@ import { MeshSurfaceSampler } from "three/examples/jsm/math/MeshSurfaceSampler";
 import { area } from './utils';
 
 const _obj = new Object3D();
-const _mat = _obj.matrix.clone();
 const _vec = new Vector3();
 const _color = new Color();
 
@@ -39,7 +38,7 @@ export const Scatter = ({ geometry, material, position, childGeometry, children,
 		meshRefs.forEach((m,j) =>
 		  m.current.setColorAt(i,
 							   color(i, _vec,
-									 _color.copy(material[j].color))));
+									 _color.copy(Array.isArray(material)?material[j].color:material.color))));
 	  }
 	  if (rotate) _obj.setRotationFromEuler(rotate(i, _vec));
 	  if (scale) {
@@ -56,7 +55,12 @@ export const Scatter = ({ geometry, material, position, childGeometry, children,
 
   }, [meshRefs, count, scale, rotate, color, geometry, material]);
 
-  return meshRefs.map( (m,i) => <instancedMesh key={i} position={position} ref={m} args={[childGeometries[i],material?material[i]:null,count]} >
+  return meshRefs.map( (m,i) =>
+	<instancedMesh
+	  key={i}
+	  position={position}
+	  ref={m}
+	  args={[childGeometries[i], Array.isArray(material)?material[i]:material, count]} >
 	{children}
   </instancedMesh>);
 

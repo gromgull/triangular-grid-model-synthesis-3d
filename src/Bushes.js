@@ -1,19 +1,18 @@
-import { useState } from 'react';
 import { Scatter } from './Scatter';
 
 import { scale1_2, light25pct } from "./transforms";
 
-import { MeshStandardMaterial } from "three";
+import vert from './shaders/rock.vert';
+import { usePatchShader } from './utils';
 
 export const Bushes = (props) => {
 
-  const [ mat, setMat ] = useState( () => [ new MeshStandardMaterial( { color: props.color || 0x354928, flatShading: true }) ]);
-
+  const material = usePatchShader(vert, null, 0x354928);
 
   return <Scatter
 		   scale={scale1_2}
 		   geometry={props.geometry}
-		   material={mat}
+		   material={material}
 		   color={light25pct}
 		   position={props.position}
 		   density={props.density || 20}>

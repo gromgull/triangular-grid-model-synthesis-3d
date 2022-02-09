@@ -66,7 +66,7 @@ float simplex3d(vec3 p) {
 
 ----
 
-  float nv = simplex3d(10000.0*(instanceMatrix * modelMatrix * vec4(position,1)).xyz);
+  float nv = simplex3d(4.1*(instanceMatrix * modelMatrix * vec4(position,1)).xyz);
   float scale = 100.0;
   vec4 pos = instanceMatrix * modelMatrix * vec4(0,0,0,1);
   float nm = 1.+2.*simplex3d(scale * pos.xyz );
