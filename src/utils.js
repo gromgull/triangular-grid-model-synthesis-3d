@@ -1,4 +1,3 @@
-import { useMemo, useCallback } from 'react';
 
 import { MeshStandardMaterial, Vector3 } from 'three';
 

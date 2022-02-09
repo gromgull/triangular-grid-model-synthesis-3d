@@ -20,7 +20,7 @@ export const Rocks = (props) => {
 		   color={light25pct}
 		   position={props.position}
 		   density={props.density || 20}>
-		   <sphereGeometry args={[props.scale,7,5]}/>
+		   <sphereGeometry args={[props.scale || 0.05,7,5]}/>
 		 </Scatter>
 
 };

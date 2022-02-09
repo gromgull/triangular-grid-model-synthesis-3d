@@ -9,8 +9,9 @@ import tri from './tri.js';
 import tv2 from './tv2.js';
 import tv3 from './tv3.js';
 
-import EmptyTile from './models/Empty';
 import Effects from './Effects';
+
+import TileModel from './Tile';
 
 const d60 = 2*Math.PI/6;
 const th = Math.sqrt(3)/6;
@@ -30,15 +31,14 @@ function intersection(a,b) {
 
 const Tile = props => {
 
-  let r,TileModel;
+  let r, t;
 
   if (props.t === undefined) {
 	r = 0;
-	TileModel = EmptyTile;
   } else {
+	t = props.rules.tile_map[props.t];
 	r = props.rules.rotation_map[props.t];
 	if (r==-1) r = (props.pos[0]+17*props.pos[1]+23*props.pos[2])%3;
-	TileModel = props.rules.tile_models[props.rules.tile_map[props.t]];
   }
 
   const [cx,cy] = tri.center(...props.pos);
@@ -56,7 +56,7 @@ const Tile = props => {
 	  <group position={[scale*cx,0,scale*cy]}>
 		<object3D rotation={[0,up ? 0 : 3*d60,0]} >
 		  <object3D rotation={[0,r*2*d60,0]}>
-			<TileModel scale={scale} position={[0,0,scale*2*th]}  />
+			<TileModel t={t} scale={scale} position={[0,0,scale*2*th]}  />
 		  </object3D>
 		</object3D>
 	  </group>

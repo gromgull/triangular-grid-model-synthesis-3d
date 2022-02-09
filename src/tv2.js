@@ -8,12 +8,6 @@
 
 */
 
-import { default as Tile0 } from './models/0.js';
-import { default as Tile1 } from './models/1.js';
-import { default as Tile2 } from './models/2.js';
-import { default as Tile3 } from './models/3.js';
-
-const tile_models = [ Tile0, Tile1, Tile2, Tile3 ];
 
 const n = 8;
 
@@ -58,4 +52,4 @@ const make_constraints = corners => corners.map( c => {
 
 const constraints = make_constraints(corners);
 
-export default { make_constraints, constraints, corners, rotation_map, tile_map, tiles, n, tile_models };
+export default { make_constraints, constraints, corners, rotation_map, tile_map, tiles, n };
