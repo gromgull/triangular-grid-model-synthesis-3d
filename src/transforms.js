@@ -11,4 +11,4 @@ export const scale1_2 = (i, pos) => 1+Math.random()*2;
 export const light25pct = (i, pos, color) => color.offsetHSL(0, 0, (Math.random()-0.5)*.5);
 export const lightPlus50pct = (i, pos, color) => color.offsetHSL(0, 0, Math.random()*.5);
 
-export const hue25pct = (i, pos, color) => color.offsetHSL((Math.random()-0.5)*2, (Math.random()-0.5)*1, (Math.random()-0.5)*1);
+export const hue25pct = (i, pos, color) => color.offsetHSL((Math.random()-0.5)*.25, (Math.random()-0.5)*.2, (Math.random()-0.5)*.2);

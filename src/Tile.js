@@ -4,6 +4,7 @@ import { useGLTF } from '@react-three/drei'
 import { Mesh, Group } from 'three';
 
 import {Rocks}  from './Rocks';
+import {Bushes}  from './Bushes';
 import {Flowers} from './Flowers';
 import {Trees} from './Trees';
 import {Grasses} from './Grasses';
@@ -12,6 +13,7 @@ const scatterMap = {
   flowers: Flowers,
   trees: Trees,
   rocks: Rocks,
+  bushes: Bushes,
   grasses: Grasses
 }
 

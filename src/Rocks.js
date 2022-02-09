@@ -10,7 +10,7 @@ import { MeshStandardMaterial } from "three";
 
 export const Rocks = (props) => {
 
-  const [ mat, setMat ] = useState( () => [ new MeshStandardMaterial( { color: props.color || 0xa0a4a4, flatShading: true }) ]);
+  const [ mat, setMat ] = useState( () => [ new MeshStandardMaterial( { color: props.color || 0x724C47, flatShading: true }) ]);
 
 
   return <Scatter
