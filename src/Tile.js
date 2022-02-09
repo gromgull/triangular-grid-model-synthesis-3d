@@ -50,7 +50,7 @@ export default function Tile(props) {
 }
 
 [...Array(10).keys()].forEach( i => useGLTF.preload(`assets/tile${i}.glb`) );
-useGLTF.preload('empty.glb');
-useGLTF.preload('flower.glb');
-useGLTF.preload('tree.glb');
-useGLTF.preload('grass.glb');
+useGLTF.preload('assets/empty.glb');
+useGLTF.preload('assets/flower.glb');
+useGLTF.preload('assets/tree.glb');
+useGLTF.preload('assets/grass.glb');
