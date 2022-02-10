@@ -172,10 +172,10 @@ const Grid = props => {
 
 
   return (
-	<>
+	<group position={props.position}>
 	  { Object.keys(options).map( c =>
 		<Tile key={c} rules={props.rules} t={options[c].length===1 ? options[c][0] : undefined} pos={props.cells[c]} /> ) }
-	</>
+	</group>
   )
 };
 
@@ -234,7 +234,7 @@ function App() {
 			 <fog color="white" far={30} near={0.01} attach="fog" />
 			 <Sky distance={450000} sunPosition={[1, .02, 0]} inclination={.1} azimuth={0.25}  />
 			 <Clouds position={[0,2.5,0]}/>
-			 <Grid rules={tv3} iteration={iteration} cells={cells} />
+			 <Grid position={[0,0,0]} rules={tv3} iteration={iteration} cells={cells} />
 		   </Suspense>
 		 </Canvas>;
 }

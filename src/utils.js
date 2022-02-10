@@ -23,7 +23,7 @@ export function area(geometry) {
 }
 
 
-export function usePatchShader(vertexShaderUrl, fragmentShaderUrl, color) {
+export function PatchShaderMaterial({ vertexShaderUrl, fragmentShaderUrl, children, ...props}) {
 
   const vertexShader = useAsset( async ([url]) => {
 	if (!url) return new Promise( r => r(null) );
@@ -38,26 +38,31 @@ export function usePatchShader(vertexShaderUrl, fragmentShaderUrl, color) {
   }, [fragmentShaderUrl]);
 
 
-  return useAsset( ([vertexShader, fragmentShader, color]) => {
+  const [ obc, key ] = useAsset( ([vertexShader, fragmentShader]) => {
 
 	const obc = shader => {
 	  const [ funcs, to ] = vertexShader.split('----');
 
 	  shader.vertexShader = shader.vertexShader.replace('#include <begin_vertex>',to);
 	  shader.vertexShader = shader.vertexShader.replace('void main() {',funcs+'\nvoid main() {');
-
 	  // TODO Fragment
-	  console.log(vertexShaderUrl, vertexShader.substr(vertexShader.length-100, vertexShader.length));
+	  //console.log(vertexShaderUrl, vertexShader.substr(vertexShader.length-100, vertexShader.length));
 
 	};
 
-	const mat = new MeshStandardMaterial({flatShading: true, color});
-	mat.onBeforeCompile = obc;
-	mat.customProgramCacheKey = () => [ vertexShaderUrl, fragmentShaderUrl ].join();
+	return new Promise( r => r([obc, () => [ vertexShaderUrl, fragmentShaderUrl ].join()]));
 
-	return new Promise( r => r(mat) );
+  }, [vertexShader, fragmentShader]);
 
-  }, [vertexShader, fragmentShader, color]);
+
+  return <meshStandardMaterial
+		   {...props}
+		   flatShading
+		   onBeforeCompile={obc}
+		   customProgramCacheKey={key}
+		 >
+		   {children}
+		 </meshStandardMaterial>
 
 
 }

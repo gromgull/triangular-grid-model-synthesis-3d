@@ -29,7 +29,6 @@ export const Scatter = ({ geometry, material, position, childGeometry, children,
 	sampler.build();
 
 	console.log('scatter', color);
-
 	// sample
 	for(let i = 0 ; i<count; i++) {
 	  sampler.sample(_vec);
@@ -38,7 +37,7 @@ export const Scatter = ({ geometry, material, position, childGeometry, children,
 		meshRefs.forEach((m,j) =>
 		  m.current.setColorAt(i,
 							   color(i, _vec,
-									 _color.copy(Array.isArray(material)?material[j].color:material.color))));
+									 _color.copy(m.current.material.color))));
 	  }
 	  if (rotate) _obj.setRotationFromEuler(rotate(i, _vec));
 	  if (scale) {
