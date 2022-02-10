@@ -230,7 +230,7 @@ function App() {
 			 <directionalLight args={[0xffeedd, 1.0]} castShadow position={[1,.6,0]}/>
 			 <ambientLight args={[2]}/>
 			 { /* <axesHelper /> */ }
-			 <Environment preset="sunset" />
+			 <Environment files="assets/venice_sunset_1k.hdr" />
 			 <fog color="white" far={30} near={0.01} attach="fog" />
 			 <Sky distance={450000} sunPosition={[1, .02, 0]} inclination={.1} azimuth={0.25}  />
 			 <Clouds position={[0,2.5,0]}/>
