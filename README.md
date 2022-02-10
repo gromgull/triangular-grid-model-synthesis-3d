@@ -2,7 +2,7 @@
 
 [Demo!](https://gromgull.github.io/triangular-grid-model-synthesis-3d/)
 
-![sample image](img/sample.png)
+![sample image](img/sample3.png)
 
 ![tiles](img/tiles.png)
 
@@ -19,6 +19,6 @@ Make the tiles equilateral triangles with edge-length 1.
 
 Ensure you apply all scale/rotation.
 
-Export as glb - use gltfjsx to auto-generate component js files.
-
 Look at the blend file in `public/assets/tiles.blend`
+
+There is a python script that will export all collections to corresponding glb files. (in retrospect - why not use ONE glb file?)
