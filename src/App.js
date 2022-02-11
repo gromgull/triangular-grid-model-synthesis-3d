@@ -1,13 +1,12 @@
 import React, { useEffect, useState, Suspense } from 'react'
 
 import { Canvas } from '@react-three/fiber'
-import { Sky, Environment, OrbitControls } from "@react-three/drei";
+import { Sky, Environment, OrbitControls, Text } from "@react-three/drei";
 
 import './App.css';
 
-import tri from './tri.js';
-import tv2 from './tv2.js';
-import tv3 from './tv3.js';
+import cube from './cube';
+import cv3 from './cv3'
 
 import TileModel from './Tile';
 
@@ -16,7 +15,7 @@ import Clouds from './Clouds';
 const d60 = 2*Math.PI/6;
 const th = Math.sqrt(3)/6;
 
-const verbose = false;
+const verbose = true;
 
 function log(msg) {
   if (verbose) console.log(msg);
@@ -35,15 +34,12 @@ const Tile = props => {
 
   if (props.t === undefined) {
 	r = 0;
+	t = 0; // air
   } else {
 	t = props.rules.tile_map[props.t];
 	r = props.rules.rotation_map[props.t];
 	if (r==-1) r = (props.pos[0]+17*props.pos[1]+23*props.pos[2])%3;
   }
-
-  const [cx,cy] = tri.center(...props.pos);
-
-  const up = tri.points_up(...props.pos);
 
   const scale = 1;
 
@@ -53,14 +49,7 @@ const Tile = props => {
   // finally position
   return (
     <>
-	  <group position={[scale*cx,0,scale*cy]}>
-		<object3D rotation={[0,up ? 0 : 3*d60,0]} >
-		  <object3D rotation={[0,r*2*d60,0]}>
-			<TileModel t={t} scale={scale} position={[0,0,scale*2*th]}  />
-		  </object3D>
-		</object3D>
-	  </group>
-
+	  <TileModel scale={0.125} t={t} rotation={[0,r*Math.PI/2,0]} position={props.pos}  />
     </>
   );
 };
@@ -77,8 +66,13 @@ const Grid = props => {
   if (props.cells !== cells) {
 	// reset
 	setCells(props.cells);
-	setOptions(Object.fromEntries( Object.keys(props.cells).map( c => [c, [...props.rules.tiles]]) ));
-	setDirty([]);
+	const o = Object.fromEntries( Object.keys(props.cells).map( c => [c, [...props.rules.tiles]]) );
+	o['1,0,1'] = [3];
+	setOptions(o);
+
+	setDirty( cube.neighbours(...props.cells['1,0,1'])
+			  .map( n => n.toString() )
+			  .filter( n => props.cells[n] !== undefined) );
   }
 
   useEffect( () => {
@@ -102,7 +96,7 @@ const Grid = props => {
 	  if (pre_length === 1) continue;
 
 	  const pre = [ ...new_options[c]];
-	  const neighbours = tri.neighbours(...props.cells[c])
+	  const neighbours = cube.neighbours(...props.cells[c])
 			.map( n => n.toString() );
 
 	  neighbours.forEach( (n,i) => {
@@ -162,7 +156,7 @@ const Grid = props => {
 	log(`Setting ${min_cell} to ${val} (had ${len} options)`);
 
 	setOptions( { ...options, [min_cell]: [val] } );
-	setDirty( tri.neighbours(...props.cells[min_cell])
+	setDirty( cube.neighbours(...props.cells[min_cell])
 			  .map( n => n.toString() )
 			  .filter( n => props.cells[n] !== undefined) );
 
@@ -186,21 +180,13 @@ function App() {
 
   const [ cells, setCells ] = useState( () => {
 
-	let cells = {};
+	let t, cells = {};
 
-	// the triangle coordinate system makes it hard to define a rectangle,
-	// so we start with a tile and just move out n steps.
-	const n = 8;
-	let nxt = [ [ 0,0,1 ]];
-	for (let i = 0; i<n; i++) {
-	  nxt = nxt.flatMap( t => {
-		cells[t] = t;
-		return tri.neighbours(...t);
-	  });
+	const n = 3;
+	for(let i=0; i<n*n*n; i++) {
+	  t = [Math.floor(i/(n*n)), Math.floor(i%(n*n)/n), i%(n*n)%n];;;;
+	  cells[t] = t;
 	}
-
-	// for looks - filter out cells with only one neighbour
-	cells = Object.fromEntries( Object.keys(cells).flatMap( c => tri.neighbours(...cells[c]).filter( n => cells[n] !== undefined ).length > 1?[[ c, cells[c]]]:[] ));
 
 	log(`Grid is ${Object.keys(cells).length} tiles`);
 
@@ -224,17 +210,24 @@ function App() {
 	};
   }, [iteration, autoRotate, cells]);
 
-  return <Canvas camera={{ fov: 45, position: [5, 5, 5] }}>
+  return <Canvas frameloop="demand" camera={{ fov: 45, position: [5, 5, 5] }}>
 		   <Suspense fallback={null}>
 			 <OrbitControls autoRotate={autoRotate}/>
 			 <directionalLight args={[0xffeedd, 1.0]} castShadow position={[1,.6,0]}/>
 			 <ambientLight args={[2]}/>
-			 { /* <axesHelper /> */ }
+			 <axesHelper position={[-3,0,0]}/>
 			 <Environment preset="sunset" />
-			 <fog color="white" far={30} near={0.01} attach="fog" />
+			 <fog color="white" far={50} near={0.01} attach="fog" />
 			 <Sky distance={450000} sunPosition={[1, .02, 0]} inclination={.1} azimuth={0.25}  />
 			 <Clouds position={[0,2.5,0]}/>
-			 <Grid position={[0,0,0]} rules={tv3} iteration={iteration} cells={cells} />
+			 <Grid position={[0,0,0]} rules={cv3} iteration={iteration} cells={cells} />
+
+			 { [...Array(42).keys()].map( i =>
+			   <group key={i} position={[i%7,-3-Math.floor(i/7),0]}>
+				 <Text>{i}</Text>
+				 <TileModel position={[0,.1,0]} scale={0.1} t={cv3.tile_map[i]} rotation={[0,cv3.rotation_map[i]*Math.PI/2,0]}/>
+			   </group> ) }
+
 		   </Suspense>
 		 </Canvas>;
 }
