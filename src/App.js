@@ -15,17 +15,19 @@ import Clouds from './Clouds';
 const d60 = 2*Math.PI/6;
 const th = Math.sqrt(3)/6;
 
-const verbose = true;
+const catalogue = false;
+const verbose = false;
 
 function log(msg) {
   if (verbose) console.log(msg);
 }
 
 function intersection(a,b) {
-  // TODO: a and b are sorted, we can do better.
-  const r = [];
-  a.forEach( v => b.indexOf(v) !== -1 && r.push(v) );
-  return r;
+  let i = 0;
+  return a.filter( x => {
+	while (b[i]<x) i++;
+	return b[i] === x;
+  });
 }
 
 const Tile = props => {
@@ -67,12 +69,12 @@ const Grid = props => {
 	// reset
 	setCells(props.cells);
 	const o = Object.fromEntries( Object.keys(props.cells).map( c => [c, [...props.rules.tiles]]) );
-	o['1,0,1'] = [3];
 	setOptions(o);
 
-	setDirty( cube.neighbours(...props.cells['1,0,1'])
-			  .map( n => n.toString() )
-			  .filter( n => props.cells[n] !== undefined) );
+	// setDirty( cube.neighbours(...props.cells['1,0,1'])
+	// 		  .map( n => n.toString() )
+	// 		  .filter( n => props.cells[n] !== undefined) );
+	setDirty([]);
   }
 
   useEffect( () => {
@@ -147,6 +149,11 @@ const Grid = props => {
 
 	if (min_cell === undefined) {
 	  log('all done!');
+
+	  const count = Object.fromEntries([...props.rules.tiles.keys()].map(i => [i,0]));
+	  Object.values(options).forEach(o => count[o[0]] += 1);
+	  console.log(count);
+
 	  return;
 	}
 
@@ -182,7 +189,7 @@ function App() {
 
 	let t, cells = {};
 
-	const n = 3;
+	const n = 9;
 	for(let i=0; i<n*n*n; i++) {
 	  t = [Math.floor(i/(n*n)), Math.floor(i%(n*n)/n), i%(n*n)%n];;;;
 	  cells[t] = t;
@@ -217,16 +224,16 @@ function App() {
 			 <ambientLight args={[2]}/>
 			 <axesHelper position={[-3,0,0]}/>
 			 <Environment preset="sunset" />
-			 <fog color="white" far={50} near={0.01} attach="fog" />
+			 { /* <fog color="white" far={50} near={0.01} attach="fog" /> */ }
 			 <Sky distance={450000} sunPosition={[1, .02, 0]} inclination={.1} azimuth={0.25}  />
-			 <Clouds position={[0,2.5,0]}/>
+			 <Clouds position={[0,6,0]}/>
 			 <Grid position={[0,0,0]} rules={cv3} iteration={iteration} cells={cells} />
 
-			 { [...Array(42).keys()].map( i =>
+			 { catalogue?[...cv3.tiles.keys()].map( i =>
 			   <group key={i} position={[i%7,-3-Math.floor(i/7),0]}>
 				 <Text>{i}</Text>
 				 <TileModel position={[0,.1,0]} scale={0.1} t={cv3.tile_map[i]} rotation={[0,cv3.rotation_map[i]*Math.PI/2,0]}/>
-			   </group> ) }
+			   </group> ):[] }
 
 		   </Suspense>
 		 </Canvas>;
