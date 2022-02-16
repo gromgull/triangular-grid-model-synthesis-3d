@@ -17,34 +17,16 @@ import { Mesh, Group } from 'three';
 //   grasses: Grasses
 // }
 
-// function traverse(children) {
-//   return children.map( (c,i) => {
-// 	if (c instanceof Mesh) {
-// 	  const Tag = c.userData.scatter ? scatterMap[c.userData.scatter] : "mesh";
-// 	  return <Tag key={i}
-// 			   material={c.material}
-// 			   geometry={c.geometry}
-// 			   position={c.position}
-// 			   density={c.userData.density} />;
-// 	} else if (c instanceof Group) {
-// 	  return <group key={i} position={c.position}> { traverse(c.children) } </group>;
-// 	} else {
-// 	  throw `I can't deal with ${c}`;
-// 	}
-//   });
-// }
 
 export default function Tile(props) {
 
   const { nodes } = useGLTF(`assets/house.glb`)
 
-  const t = `Cube${props.t.toString().padStart(3,'0')}`;
-
   const object = useMemo( () => {
-	const o = nodes[t].clone(true);
+	const o = nodes[props.t].clone(true);
 	o.position.setScalar(0);
 	return o;
-  }, [ t ]);
+  }, [ props.t ]);
 
   //const meshes = useMemo( () => traverse(nodes.Scene.children), [ nodes ] );
 

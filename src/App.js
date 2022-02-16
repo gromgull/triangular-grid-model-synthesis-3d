@@ -6,7 +6,7 @@ import { Sky, Environment, OrbitControls, Text } from "@react-three/drei";
 import './App.css';
 
 import cube from './cube';
-import cv3 from './cv3'
+import useCV3 from './cv3'
 
 import TileModel from './Tile';
 
@@ -36,7 +36,7 @@ const Tile = props => {
 
   if (props.t === undefined) {
 	r = 0;
-	t = 0; // air
+	t = 'Cube000'; // air
   } else {
 	t = props.rules.tile_map[props.t];
 	r = props.rules.rotation_map[props.t];
@@ -68,7 +68,7 @@ const Grid = props => {
   if (props.cells !== cells) {
 	// reset
 	setCells(props.cells);
-	const o = Object.fromEntries( Object.keys(props.cells).map( c => [c, [...props.rules.tiles]]) );
+	const o = Object.fromEntries( Object.keys(props.cells).map( c => [c, [...props.rules.tiles.keys()]]) );
 	setOptions(o);
 
 	// setDirty( cube.neighbours(...props.cells['1,0,1'])
@@ -180,10 +180,12 @@ const Grid = props => {
   )
 };
 
-function App() {
+function Scene() {
 
   const [ iteration, setIteration ] = useState(0);
   const [ autoRotate, setAutoRotate ] = useState(false);
+
+  const cv3 = useCV3();
 
   const [ cells, setCells ] = useState( () => {
 
@@ -217,26 +219,34 @@ function App() {
 	};
   }, [iteration, autoRotate, cells]);
 
-  return <Canvas frameloop="demand" camera={{ fov: 45, position: [5, 5, 5] }}>
-		   <Suspense fallback={null}>
-			 <OrbitControls autoRotate={autoRotate}/>
-			 <directionalLight args={[0xffeedd, 1.0]} castShadow position={[1,.6,0]}/>
-			 <ambientLight args={[2]}/>
-			 <axesHelper position={[-3,0,0]}/>
-			 <Environment preset="sunset" />
-			 { /* <fog color="white" far={50} near={0.01} attach="fog" /> */ }
-			 <Sky distance={450000} sunPosition={[1, .02, 0]} inclination={.1} azimuth={0.25}  />
-			 <Clouds position={[0,6,0]}/>
-			 <Grid position={[0,0,0]} rules={cv3} iteration={iteration} cells={cells} />
+  return (
+	<Canvas frameloop="demand" camera={{ fov: 45, position: [5, 5, 5] }}>
+	  <OrbitControls autoRotate={autoRotate}/>
+	  <directionalLight args={[0xffeedd, 1.0]} castShadow position={[1,.6,0]}/>
+	  <ambientLight args={[2]}/>
+	  <axesHelper position={[-3,0,0]}/>
+	  <Environment files="assets/venice_sunset_1k.hdr" />
+	  { /* <fog color="white" far={50} near={0.01} attach="fog" /> */ }
+	  <Sky distance={450000} sunPosition={[1, .02, 0]} inclination={.1} azimuth={0.25}  />
+	  <Clouds position={[0,6,0]}/>
+	  <Grid position={[0,0,0]} rules={cv3} iteration={iteration} cells={cells} />
 
-			 { catalogue?[...cv3.tiles.keys()].map( i =>
-			   <group key={i} position={[i%7,-3-Math.floor(i/7),0]}>
-				 <Text>{i}</Text>
-				 <TileModel position={[0,.1,0]} scale={0.1} t={cv3.tile_map[i]} rotation={[0,cv3.rotation_map[i]*Math.PI/2,0]}/>
-			   </group> ):[] }
+	  { catalogue?[...cv3.tiles.keys()].map( i =>
+		<group key={i} position={[i%7,-3-Math.floor(i/7),0]}>
+		  <Text>{i}</Text>
+		  <TileModel position={[0,.1,0]} scale={0.1} t={cv3.tile_map[i]} rotation={[0,cv3.rotation_map[i]*Math.PI/2,0]}/>
+		</group> ):[] }
 
-		   </Suspense>
-		 </Canvas>;
+	</Canvas>
+  );
+}
+
+function App() {
+  return (
+	<Suspense fallback={null}>
+	  <Scene />
+	</Suspense>
+  )
 }
 
 export default App;
