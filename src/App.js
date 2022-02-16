@@ -15,7 +15,7 @@ import Clouds from './Clouds';
 const d60 = 2*Math.PI/6;
 const th = Math.sqrt(3)/6;
 
-const catalogue = false;
+const catalogue = true;
 const verbose = false;
 
 function log(msg) {
