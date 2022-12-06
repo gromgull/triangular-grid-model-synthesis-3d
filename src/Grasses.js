@@ -19,5 +19,4 @@ export const Grasses = (props) => {
 			 childGeometry={geometries}
 			 density={200}>
 		 </Scatter>
-
 };

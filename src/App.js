@@ -6,7 +6,6 @@ import { Sky, Environment, OrbitControls } from "@react-three/drei";
 import './App.css';
 
 import tri from './tri.js';
-import tv2 from './tv2.js';
 import tv3 from './tv3.js';
 
 import TileModel from './Tile';
@@ -209,8 +208,11 @@ function App() {
 
   useEffect(() => {
     const handleWindowKeydown = e => {
+	  // if space is pressed
 	  if (e.keyCode === 32) setIteration(iteration+1);
+	  // if r is pressed (resets the entire board)
 	  if (e.keyCode === 82) setCells({...cells});
+	  // if a is pressed, keeps on rotating the board
 	  if (e.keyCode === 65) setAutoRotate(!autoRotate);
 	};
 	const handleClick = e => { setIteration(iteration+1); };
@@ -227,7 +229,7 @@ function App() {
   return <Canvas camera={{ fov: 45, position: [5, 5, 5] }}>
 		   <Suspense fallback={null}>
 			 <OrbitControls autoRotate={autoRotate}/>
-			 <directionalLight args={[0xffeedd, 1.0]} castShadow position={[1,.6,0]}/>
+			 <directionalLight args={[0x0, 1.0]} castShadow position={[1,.6,0]}/>
 			 <ambientLight args={[2]}/>
 			 { /* <axesHelper /> */ }
 			 <Environment preset="sunset" />
