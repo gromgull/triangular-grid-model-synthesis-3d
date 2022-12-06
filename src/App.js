@@ -12,12 +12,14 @@ import TileModel from './Tile';
 
 import Clouds from './Clouds';
 
-import * as x from './threex.domevents/threex.domevents';
-
+import * as DomEvent from './threex.domevents/threex.domevents';
+	
 const d60 = 2*Math.PI/6;
 const th = Math.sqrt(3)/6;
 
 const verbose = false;
+
+var domEvents = new DomEvent(camera, renderer.domElement)
 
 function log(msg) {
   if (verbose) console.log(msg);
@@ -52,8 +54,7 @@ const Tile = props => {
   // then rotation to give us right orientation of triangle (3 options), r=0,1,2
   // then rotation for up or down triangles
   // finally position
-  return (
-    <>
+  let mesh = <>
 	  <group position={[scale*cx,0,scale*cy]}>
 		<object3D rotation={[0,up ? 0 : 3*d60,0]} >
 		  <object3D rotation={[0,r*2*d60,0]}>
@@ -63,6 +64,8 @@ const Tile = props => {
 	  </group>
 
     </>
+  return (
+    mesh
   );
 };
 
@@ -218,7 +221,7 @@ function App() {
 	  if (e.keyCode === 65) setAutoRotate(!autoRotate);
 	};
 	const handleClick = e => { setIteration(iteration+1); };
-	window.addEventListener('click', handleClick);
+	//window.addEventListener('click', handleClick);
 
     window.addEventListener('keydown', handleWindowKeydown);
 
