@@ -1,0 +1,14 @@
+{
+  "name": "threex.domevents",
+  "homepage": "https://github.com/jeromeetienne/threex.domevents",
+  "_release": "1100828c40",
+  "_resolution": {
+    "type": "branch",
+    "branch": "master",
+    "commit": "1100828c40df668a82a97c811895918088cc607f"
+  },
+  "_source": "https://github.com/jeromeetienne/threex.domevents.git",
+  "_target": "*",
+  "_originalSource": "threex.domevents",
+  "_direct": true
+}
