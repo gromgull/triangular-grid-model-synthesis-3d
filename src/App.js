@@ -1,6 +1,6 @@
-import React, { useEffect, useState, Suspense } from 'react'
+import React, { useEffect, useState, Suspense, useRef } from 'react'
 
-import { Canvas } from '@react-three/fiber'
+import { Canvas, useThree } from '@react-three/fiber'
 import { Sky, Environment, OrbitControls } from "@react-three/drei";
 
 import './App.css';
@@ -13,13 +13,12 @@ import TileModel from './Tile';
 import Clouds from './Clouds';
 
 import * as DomEvent from './threex.domevents/threex.domevents';
+import * as THREE from 'three';
 	
 const d60 = 2*Math.PI/6;
 const th = Math.sqrt(3)/6;
 
 const verbose = false;
-
-var domEvents = new DomEvent(camera, renderer.domElement)
 
 function log(msg) {
   if (verbose) console.log(msg);
@@ -34,6 +33,9 @@ function intersection(a,b) {
 
 const Tile = props => {
 
+//   const a = useThree()
+//   const cam={ fov: 45, position: [5, 5, 5] }
+//   var domEvents = new DomEvent(a.camera, a.renderer.domElement)
   let r, t;
 
   if (props.t === undefined) {
@@ -54,22 +56,44 @@ const Tile = props => {
   // then rotation to give us right orientation of triangle (3 options), r=0,1,2
   // then rotation for up or down triangles
   // finally position
-  let mesh = <>
-	  <group position={[scale*cx,0,scale*cy]}>
-		<object3D rotation={[0,up ? 0 : 3*d60,0]} >
+//   let mesh = <TileModel t={t} scale={scale} position={[0,0,scale*2*th]}  />
+  let mesh = <object3D rotation={[0,up ? 0 : 3*d60,0]} >
 		  <object3D rotation={[0,r*2*d60,0]}>
 			<TileModel t={t} scale={scale} position={[0,0,scale*2*th]}  />
 		  </object3D>
 		</object3D>
+//   let mesh = <>
+// 	  <group position={[scale*cx,0,scale*cy]}>
+// 		<object3D rotation={[0,up ? 0 : 3*d60,0]} >
+// 		  <object3D rotation={[0,r*2*d60,0]}>
+// 			<TileModel t={t} scale={scale} position={[0,0,scale*2*th]}  />
+// 		  </object3D>
+// 		</object3D>
+// 	  </group>
+
+//     </>
+// mesh.name = 'bob'
+// console.log(mesh.name)
+	// mesh.callback = function() { console.log( mesh.name ); }
+  return (
+    <>
+	  <group position={[scale*cx,0,scale*cy]}>
+		{mesh}
 	  </group>
 
     </>
-  return (
-    mesh
   );
 };
 
 const Grid = props => {
+	
+const threeInstance = useThree()
+var objects = [];
+threeInstance.scene.traverse(function(obj){
+	if(obj.type === 'Object3D'){
+		objects.push(obj)
+	}
+});
 
   const [ options, setOptions ] = useState({});
 
@@ -77,6 +101,17 @@ const Grid = props => {
 
   const [ dirty, setDirty ] = useState( [] );
   const [ iteration, setIteration ] = useState(0);
+
+  const HandleClick = e => {
+	// const instance = threeInstance;
+	// console.log(gridRef)
+	const intersects = threeInstance.raycaster.intersectObjects(objects);
+	if (intersects.length > 0) {
+		console.log(intersects)
+		setIteration(iteration+1);
+	  }
+};
+window.addEventListener('click', HandleClick);
 
   if (props.cells !== cells) {
 	// reset
@@ -183,10 +218,16 @@ const Grid = props => {
   )
 };
 
-function App() {
+function App({ props }) {
 
   const [ iteration, setIteration ] = useState(0);
   const [ autoRotate, setAutoRotate ] = useState(false);
+
+//   const { mycamera, myscene, myrenderer } = useThree()
+//   const cam={ fov: 45, position: [5, 5, 5] }
+//   const renderer = new THREE.WebGLRenderer();
+
+//   var domEvents1 = new DomEvent(cam, renderer.domElement)
 
   const [ cells, setCells ] = useState( () => {
 
@@ -211,6 +252,15 @@ function App() {
 	return cells;
   });
 
+// //   const threeInstance = useThree();
+// const addObject = () => {
+//     // Get the current three.js instance.
+//     const instance = useThree();
+// 	console.log(instance);
+//   };
+// const instance = useRef();
+// const gridRef = React.useRef();
+
   useEffect(() => {
     const handleWindowKeydown = e => {
 	  // if space is pressed
@@ -220,14 +270,19 @@ function App() {
 	  // if a is pressed, keeps on rotating the board
 	  if (e.keyCode === 65) setAutoRotate(!autoRotate);
 	};
-	const handleClick = e => { setIteration(iteration+1); };
-	//window.addEventListener('click', handleClick);
+	const HandleClick = e => {
+		// const instance = threeInstance;
+		// console.log(gridRef)
+		console.log(props.threeInstance)
+		setIteration(iteration+1);
+	};
+	// window.addEventListener('click', HandleClick);
 
     window.addEventListener('keydown', handleWindowKeydown);
 
     return () => {
 	  window.removeEventListener('keydown', handleWindowKeydown);
-	  window.removeEventListener('click', handleClick);
+	  window.removeEventListener('click', HandleClick);
 	};
   }, [iteration, autoRotate, cells]);
 
@@ -241,7 +296,7 @@ function App() {
 			 <fog color="white" far={30} near={0.01} attach="fog" />
 			 <Sky distance={450000} sunPosition={[1, .02, 0]} inclination={.1} azimuth={0.25}  />
 			 <Clouds position={[0,2.5,0]}/>
-			 <Grid position={[0,0,0]} rules={tv3} iteration={iteration} cells={cells} />
+			 <Grid position={[0,0,0]} rules={tv3} iteration={iteration} cells={cells}/>
 		   </Suspense>
 		 </Canvas>;
 }

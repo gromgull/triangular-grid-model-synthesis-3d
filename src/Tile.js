@@ -41,6 +41,8 @@ export default function Tile(props) {
   const { nodes } = useGLTF(`assets/${fn(props.t)}.glb`)
 
   const meshes = useMemo( () => traverse(nodes.Scene.children), [ nodes ] );
+//   meshes.callback = function() { console.log( meshes ); }
+//   meshes.callback()
 
   return (
 	<group {...props} dispose={null}>
